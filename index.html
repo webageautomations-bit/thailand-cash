@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#053B4A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Thailand Cash</title>
+<style>
+:root{
+  --deep:#053B4A; --sea:#0E7C86; --lagoon:#2EC4B6;
+  --sand:#FDF6EC; --shell:#fff; --line:#EDE2D3;
+  --ink:#123B45; --muted:#8A9BA1; --coral:#E8505B;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;background:var(--sand);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:150px;}
+
+/* header */
+header{position:relative;overflow:hidden;color:#fff;padding:20px 18px 18px;
+  background:linear-gradient(135deg,#053B4A 0%,#0E7C86 58%,#2EC4B6 100%);
+  border-radius:0 0 26px 26px;box-shadow:0 8px 24px rgba(5,59,74,.22);}
+header::before{content:"";position:absolute;top:-46px;right:-30px;width:140px;height:140px;
+  border-radius:50%;background:radial-gradient(circle,rgba(255,200,120,.55),rgba(255,200,120,0) 70%);}
+header::after{content:"";position:absolute;left:-10%;bottom:-30px;width:120%;height:70px;
+  background:rgba(255,255,255,.07);border-radius:50% 50% 0 0;}
+.brand{display:flex;align-items:center;gap:9px;position:relative;}
+.brand h1{margin:0;font-size:18px;font-weight:800;}
+.brand .rate{margin-left:auto;font-size:10px;font-weight:700;background:rgba(255,255,255,.16);
+  padding:5px 10px;border-radius:20px;}
+.trip{font-size:11px;color:#A8E6DF;margin-top:4px;position:relative;}
+.totals{display:flex;gap:10px;margin-top:16px;position:relative;}
+.tot{flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);
+  border-radius:15px;padding:10px 12px;}
+.tot .k{font-size:9px;color:#A8E6DF;text-transform:uppercase;letter-spacing:.9px;font-weight:700;}
+.tot .v{font-size:17px;font-weight:800;margin-top:3px;}
+.tot .s{font-size:10px;color:rgba(255,255,255,.65);margin-top:1px;}
+.meter{height:5px;border-radius:4px;background:rgba(255,255,255,.18);margin-top:14px;overflow:hidden;}
+.meter>i{display:block;height:100%;border-radius:4px;width:0;transition:width .5s;
+  background:linear-gradient(90deg,#FFD166,#FF9F1C);}
+
+main{padding:20px 18px 0;}
+.view{display:none;} .view.on{display:block;}
+label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;
+  color:var(--muted);margin:22px 0 9px;}
+label:first-child{margin-top:4px;}
+
+.amtwrap{background:var(--shell);border:1.5px solid var(--line);border-radius:18px;
+  padding:14px 16px 12px;box-shadow:0 2px 10px rgba(18,59,69,.05);text-align:center;}
+.amtrow{display:flex;align-items:center;justify-content:center;gap:6px;}
+.amtrow .sym{font-size:26px;font-weight:800;color:var(--lagoon);}
+#amount{width:100%;max-width:230px;border:none;outline:none;background:transparent;font-size:40px;
+  font-weight:800;text-align:center;color:var(--ink);font-family:inherit;padding:0;}
+#amount::placeholder{color:#D8E2E4;}
+.conv{font-size:12px;color:var(--muted);font-weight:600;margin-top:4px;}
+
+.chips{display:flex;flex-direction:column;gap:9px;}
+.chip{cursor:pointer;background:var(--shell);border:1.5px solid var(--line);border-radius:15px;
+  padding:12px 14px 11px;transition:transform .12s,box-shadow .12s;}
+.chip .top{display:flex;align-items:center;gap:10px;}
+.chip .emo{font-size:17px;line-height:1;}
+.chip .nm{font-size:14px;font-weight:700;flex:1;}
+.chip .lf{font-size:12px;font-weight:800;color:var(--muted);}
+.chip .bar{height:4px;border-radius:3px;background:#F0EAE0;margin-top:9px;overflow:hidden;}
+.chip .bar>i{display:block;height:100%;border-radius:3px;width:0;transition:width .4s;}
+.chip.on{transform:translateY(-1px);box-shadow:0 6px 18px rgba(18,59,69,.16);
+  border-color:transparent;color:#fff;}
+.chip.on .lf{color:rgba(255,255,255,.85);}
+.chip.on .bar{background:rgba(255,255,255,.28);}
+.chip.on .bar>i{background:#fff !important;}
+
+.cities{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+.city{background:var(--shell);border:1.5px solid var(--line);border-radius:14px;padding:12px 4px;
+  text-align:center;font-size:13px;font-weight:700;cursor:pointer;}
+.city small{display:block;font-size:14px;margin-bottom:2px;}
+.city.on{background:linear-gradient(135deg,var(--sea),var(--lagoon));border-color:transparent;
+  color:#fff;box-shadow:0 5px 14px rgba(14,124,134,.3);}
+
+input[type=date],input[type=text]{width:100%;padding:14px;font-size:15px;font-family:inherit;
+  color:var(--ink);background:var(--shell);border:1.5px solid var(--line);border-radius:14px;outline:none;}
+input:focus{border-color:var(--lagoon);}
+
+button.save{width:100%;margin-top:24px;padding:17px;border:none;border-radius:16px;color:#fff;
+  font-size:16px;font-weight:800;font-family:inherit;
+  background:linear-gradient(135deg,#0E7C86,#2EC4B6);box-shadow:0 7px 20px rgba(14,124,134,.34);}
+button.save:active{transform:translateY(1px);}
+button.save:disabled{opacity:.5;box-shadow:none;}
+
+/* dashboard */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat{background:var(--shell);border:1.5px solid var(--line);border-radius:16px;padding:13px 14px;}
+.stat .k{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);}
+.stat .v{font-size:19px;font-weight:800;margin-top:4px;}
+.stat .s{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.days{background:var(--shell);border:1.5px solid var(--line);border-radius:16px;padding:14px;}
+.day{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.day .d{font-size:11px;font-weight:700;width:58px;flex:none;color:var(--muted);}
+.day .t{flex:1;height:16px;background:#F4EEE4;border-radius:5px;overflow:hidden;}
+.day .t>i{display:block;height:100%;border-radius:5px;width:0;
+  background:linear-gradient(90deg,#FFC078,#FF9F1C);}
+.day .n{font-size:11px;font-weight:800;width:62px;text-align:right;flex:none;}
+.day.now .d{color:var(--sea);}
+
+/* history */
+.hgroup{margin-bottom:18px;}
+.hhead{display:flex;align-items:baseline;gap:8px;margin:0 2px 8px;}
+.hhead .hd{font-size:12px;font-weight:800;}
+.hhead .ht{margin-left:auto;font-size:12px;font-weight:800;color:var(--sea);}
+.item{display:flex;align-items:center;gap:11px;background:var(--shell);border:1.5px solid var(--line);
+  border-radius:14px;padding:11px 13px;margin-bottom:7px;}
+.item .ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:15px;flex:none;}
+.item .tx{flex:1;min-width:0;}
+.item .t1{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item .t2{font-size:11px;color:var(--muted);margin-top:1px;}
+.item .am{font-size:13px;font-weight:800;text-align:right;}
+.item .am small{display:block;font-size:10px;color:var(--muted);font-weight:600;}
+.item .x{background:none;border:none;color:#D9C9B4;font-size:19px;padding:0 2px;flex:none;}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:40px 10px;}
+
+/* nav */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:8;display:flex;
+  padding:8px 10px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(253,246,236,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line);}
+nav button{flex:1;background:none;border:none;font-family:inherit;padding:7px 0;color:var(--muted);
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;}
+nav button span{display:block;font-size:19px;margin-bottom:2px;filter:grayscale(1);opacity:.5;}
+nav button.on{color:var(--sea);}
+nav button.on span{filter:none;opacity:1;}
+
+.toast{position:fixed;left:18px;right:18px;bottom:104px;z-index:9;display:none;align-items:center;
+  gap:10px;padding:13px 15px;border-radius:15px;font-size:13px;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,#0E7C86,#2EC4B6);box-shadow:0 8px 22px rgba(5,59,74,.3);}
+.toast.err{background:linear-gradient(135deg,#B3303B,#E8505B);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><h1>🌴 Thailand Cash</h1><span class="rate" id="rate">—</span></div>
+  <div class="trip">17–29 Nov · Bangkok → Phuket → Krabi → Bangkok</div>
+  <div class="totals">
+    <div class="tot"><div class="k">Spent</div><div class="v" id="tSpent">฿—</div><div class="s" id="sSpent">₨—</div></div>
+    <div class="tot"><div class="k">Still left</div><div class="v" id="tLeft">฿—</div><div class="s" id="sLeft">₨—</div></div>
+  </div>
+  <div class="meter"><i id="meter"></i></div>
+</header>
+
+<main>
+  <!-- ADD -->
+  <section class="view on" id="v-add">
+    <label>Amount</label>
+    <div class="amtwrap">
+      <div class="amtrow"><span class="sym">฿</span>
+        <input id="amount" type="number" inputmode="decimal" placeholder="0" step="1"></div>
+      <div class="conv" id="pkr">≈ ₨0</div>
+    </div>
+    <label>Category</label>
+    <div class="chips" id="chips"></div>
+    <label>Where</label>
+    <div class="cities" id="cities"></div>
+    <label>Date</label>
+    <input id="date" type="date">
+    <label>Note (optional)</label>
+    <input id="detail" type="text" placeholder="Grab to Patong, two coffees…">
+    <button class="save" id="save">Add expense</button>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section class="view" id="v-dash">
+    <label>At a glance</label>
+    <div class="stats">
+      <div class="stat"><div class="k">Days left</div><div class="v" id="dDays">—</div><div class="s" id="dDaysSub">of 13</div></div>
+      <div class="stat"><div class="k">Avg per day</div><div class="v" id="dAvg">฿—</div><div class="s">spent so far</div></div>
+      <div class="stat"><div class="k">Daily allowance</div><div class="v" id="dAllow">฿—</div><div class="s">from here on</div></div>
+      <div class="stat"><div class="k">Biggest day</div><div class="v" id="dMax">฿—</div><div class="s" id="dMaxSub">—</div></div>
+    </div>
+    <label>Envelopes</label>
+    <div class="chips" id="dashEnv"></div>
+    <label>Daily spend</label>
+    <div class="days" id="dashDays"></div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="view" id="v-hist">
+    <label>Every expense</label>
+    <div id="histBox"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<nav>
+  <button class="on" data-v="add"><span>➕</span>Add</button>
+  <button data-v="dash"><span>📊</span>Dashboard</button>
+  <button data-v="hist"><span>🧾</span>History</button>
+</nav>
+
+<script>
+/* ============ CONFIG — paste your /exec URL between the quotes ============ */
+var SCRIPT_URL = 'PASTE_YOUR_EXEC_URL_HERE';
+var TOKEN      = 'tnt-2026-k7m9qp3xw2';
+/* ========================================================================= */
+
+var COLORS = ['#FF9F1C','#2EC4B6','#1B9AAA','#9B72CF','#E8505B','#F15BB5','#FF8FAB'];
+var CITIES = [['Bangkok','🏙️'],['Phuket','🏖️'],['Krabi','⛰️']];
+var TRIP   = ['2026-11-17','2026-11-18','2026-11-19','2026-11-20','2026-11-21','2026-11-22',
+              '2026-11-23','2026-11-24','2026-11-25','2026-11-26','2026-11-27','2026-11-28','2026-11-29'];
+
+var S = null, picked = null, city = null;
+
+var baht = function(n){ return '฿' + Math.round(n).toLocaleString('en-US'); };
+var pkr  = function(n){ return '₨' + Math.round(n).toLocaleString('en-US'); };
+
+function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function nice(s){ var p=s.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]);
+  return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}); }
+function parts(n){ var m=String(n).match(/^(\S+)\s+(.*)$/); return m?{emo:m[1],txt:m[2]}:{emo:'•',txt:String(n)}; }
+function shade(hex,a){ var n=parseInt(hex.slice(1),16);
+  var r=Math.max(0,Math.min(255,(n>>16)+a)),g=Math.max(0,Math.min(255,((n>>8)&255)+a)),b=Math.max(0,Math.min(255,(n&255)+a));
+  return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0'); }
+function colorFor(name){ var i=S?S.envelopes.findIndex(function(e){return e.name===name;}):-1;
+  return COLORS[(i<0?0:i)%COLORS.length]; }
+function cityForDate(d){ if(d.getMonth()!==10) return 'Bangkok'; var y=d.getDate();
+  if(y>=19&&y<=22) return 'Phuket'; if(y>=23&&y<=26) return 'Krabi'; return 'Bangkok'; }
+
+function toast(msg,isErr){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(isErr?' err':''); t.style.display='flex';
+  clearTimeout(window._t); window._t=setTimeout(function(){t.style.display='none';},4500);
+}
+
+/* ---------------- network ---------------- */
+function load(){
+  return fetch(SCRIPT_URL + '?t=' + Date.now(), {method:'GET', redirect:'follow'})
+    .then(function(r){ return r.json(); })
+    .then(function(j){ if(!j.ok) throw new Error(j.error); S=j.data; render(); return S; });
+}
+function post(body){
+  body.token = TOKEN;
+  return fetch(SCRIPT_URL, {
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); })
+    .then(function(j){ if(!j.ok) throw new Error(j.error); S=j.data; render(); return S; });
+}
+
+/* ---------------- render ---------------- */
+function render(){
+  if(!S) return;
+  document.getElementById('rate').textContent  = '฿1 = ₨' + S.rate.toFixed(2);
+  document.getElementById('tSpent').textContent= baht(S.spent);
+  document.getElementById('sSpent').textContent= pkr(S.spent*S.rate);
+  document.getElementById('tLeft').textContent = baht(S.left);
+  document.getElementById('sLeft').textContent = pkr(S.left*S.rate);
+  document.getElementById('meter').style.width =
+    (S.budget>0? Math.min(100,S.spent/S.budget*100):0).toFixed(1)+'%';
+  updatePkr(); drawChips(); drawDash(); drawHist();
+}
+
+function drawChips(){
+  var box=document.getElementById('chips'); box.innerHTML='';
+  S.envelopes.forEach(function(e,i){
+    var c=COLORS[i%COLORS.length], p=parts(e.name);
+    var used=e.budget>0?Math.min(100,Math.max(0,e.spent/e.budget*100)):0;
+    var on=picked===e.name;
+    var d=document.createElement('div');
+    d.className='chip'+(on?' on':'');
+    if(on) d.style.background='linear-gradient(135deg,'+c+','+shade(c,-18)+')';
+    d.innerHTML='<div class="top"><span class="emo">'+p.emo+'</span><span class="nm">'+p.txt+
+      '</span><span class="lf">'+baht(e.left)+' left</span></div>'+
+      '<div class="bar"><i style="width:'+used.toFixed(1)+'%;background:'+c+'"></i></div>';
+    d.onclick=function(){ picked=e.name; drawChips(); };
+    box.appendChild(d);
+  });
+}
+
+function drawCities(){
+  var box=document.getElementById('cities'); box.innerHTML='';
+  CITIES.forEach(function(c){
+    var d=document.createElement('div');
+    d.className='city'+(city===c[0]?' on':'');
+    d.innerHTML='<small>'+c[1]+'</small>'+c[0];
+    d.onclick=function(){ city=c[0]; drawCities(); };
+    box.appendChild(d);
+  });
+}
+
+function byDay(){
+  var m={}; TRIP.forEach(function(d){ m[d]=0; });
+  S.entries.forEach(function(e){ if(m[e.date]!==undefined) m[e.date]+=e.amount; });
+  return m;
+}
+
+function drawDash(){
+  var today=iso(new Date()), m=byDay();
+  var gone=TRIP.filter(function(d){ return d < today; }).length;
+  var left=Math.max(0, TRIP.length-gone);
+  document.getElementById('dDays').textContent=left;
+  document.getElementById('dDaysSub').textContent=gone+' of 13 done';
+  document.getElementById('dAvg').textContent= baht(gone>0? S.spent/gone : 0);
+  document.getElementById('dAllow').textContent= baht(left>0? S.left/left : S.left);
+
+  var max=0,maxd='—';
+  TRIP.forEach(function(d){ if(m[d]>max){max=m[d];maxd=d;} });
+  document.getElementById('dMax').textContent= baht(max);
+  document.getElementById('dMaxSub').textContent= max>0? nice(maxd) : 'nothing yet';
+
+  var env=document.getElementById('dashEnv'); env.innerHTML='';
+  S.envelopes.forEach(function(e,i){
+    var c=COLORS[i%COLORS.length], p=parts(e.name);
+    var used=e.budget>0?Math.min(100,Math.max(0,e.spent/e.budget*100)):0;
+    var d=document.createElement('div'); d.className='chip';
+    d.innerHTML='<div class="top"><span class="emo">'+p.emo+'</span><span class="nm">'+p.txt+
+      '</span><span class="lf" style="color:'+(e.left<0?'#C62828':'')+'">'+baht(e.left)+' left</span></div>'+
+      '<div class="bar"><i style="width:'+used.toFixed(1)+'%;background:'+(e.left<0?'#C62828':c)+'"></i></div>';
+    env.appendChild(d);
+  });
+
+  var peak=Math.max.apply(null,TRIP.map(function(d){return m[d];}).concat([1]));
+  var box=document.getElementById('dashDays'); box.innerHTML='';
+  TRIP.forEach(function(d){
+    var row=document.createElement('div');
+    row.className='day'+(d===today?' now':'');
+    row.innerHTML='<span class="d">'+nice(d).replace(/,/g,'')+'</span>'+
+      '<span class="t"><i style="width:'+(m[d]/peak*100).toFixed(1)+'%"></i></span>'+
+      '<span class="n">'+(m[d]?baht(m[d]):'—')+'</span>';
+    box.appendChild(row);
+  });
+}
+
+function drawHist(){
+  var box=document.getElementById('histBox'); box.innerHTML='';
+  if(!S.entries.length){ box.innerHTML='<div class="empty">Nothing logged yet.<br>Add your first expense.</div>'; return; }
+  var groups={}, order=[];
+  S.entries.forEach(function(e){ if(!groups[e.date]){groups[e.date]=[];order.push(e.date);} groups[e.date].push(e); });
+  order.forEach(function(d){
+    var tot=groups[d].reduce(function(a,b){return a+b.amount;},0);
+    var g=document.createElement('div'); g.className='hgroup';
+    g.innerHTML='<div class="hhead"><span class="hd">'+nice(d)+'</span><span class="ht">'+baht(tot)+'</span></div>';
+    groups[d].forEach(function(e){
+      var c=colorFor(e.category), p=parts(e.category);
+      var it=document.createElement('div'); it.className='item';
+      it.innerHTML='<span class="ic" style="background:'+c+'22">'+p.emo+'</span>'+
+        '<span class="tx"><span class="t1">'+(e.detail||p.txt)+'</span>'+
+        '<span class="t2">'+p.txt+(e.city?' · '+e.city:'')+'</span></span>'+
+        '<span class="am">'+baht(e.amount)+'<small>'+pkr(e.amount*S.rate)+'</small></span>'+
+        '<button class="x" title="Delete">×</button>';
+      it.querySelector('.x').onclick=function(){
+        if(!confirm('Delete this expense?')) return;
+        post({action:'delete', row:e.row}).then(function(){ toast('Deleted.'); })
+          .catch(function(err){ toast(err.message||'Could not delete.', true); });
+      };
+      g.appendChild(it);
+    });
+    box.appendChild(g);
+  });
+}
+
+function updatePkr(){
+  var v=Number(document.getElementById('amount').value)||0;
+  document.getElementById('pkr').textContent='≈ '+pkr(v*(S?S.rate:0));
+}
+
+/* ---------------- events ---------------- */
+document.getElementById('amount').addEventListener('input',updatePkr);
+
+document.querySelectorAll('nav button').forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll('nav button').forEach(function(x){x.classList.remove('on');});
+    document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    document.getElementById('v-'+b.dataset.v).classList.add('on');
+    window.scrollTo(0,0);
+  };
+});
+
+document.getElementById('save').onclick=function(){
+  var btn=this, amount=Number(document.getElementById('amount').value);
+  if(!amount||amount<=0){ toast('Enter an amount first.',true); return; }
+  if(!picked){ toast('Pick a category.',true); return; }
+  btn.disabled=true; btn.textContent='Saving…';
+  post({action:'add', amount:amount, category:picked, city:city,
+        date:document.getElementById('date').value,
+        detail:document.getElementById('detail').value})
+    .then(function(){
+      document.getElementById('amount').value='';
+      document.getElementById('detail').value='';
+      picked=null; render();
+      btn.disabled=false; btn.textContent='Add expense';
+      toast('Logged '+baht(amount));
+    })
+    .catch(function(err){
+      btn.disabled=false; btn.textContent='Add expense';
+      toast(err.message||'Could not save — check your connection.',true);
+    });
+};
+
+/* ---------------- init ---------------- */
+(function(){
+  var today=new Date();
+  document.getElementById('date').value=iso(today);
+  city=cityForDate(today);
+  drawCities();
+  load().catch(function(err){ toast('Could not reach the sheet: '+err.message,true); });
+})();
+</script>
+</body>
+</html>
